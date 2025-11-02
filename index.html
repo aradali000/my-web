@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NIGGR</title>
+  <style>
+   body{margin:0;font-family:Vazirmatn,sans-serif;background:#0d1f0d;color:#d1fae5;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    .app{width:100%;max-width:980px;margin-top:20px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    h1{font-size:22px;margin:0;font-weight:700;color:#bbf7d0}
+    h2{font-size:14px;margin:0;color:#a7f3d0}
+    .hud{display:flex;gap:12px}
+    .chip{background:rgba(16,185,129,0.15);padding:8px 14px;border-radius:12px;font-size:15px;font-weight:600;color:#a7f3d0;border:1px solid rgba(16,185,129,0.4)}
+
+    .stage{position:relative;width:100%;height:450px;border-radius:14px;overflow:hidden;background-image:url('image/images.jpeg');background-size:cover;background-position:center;box-shadow:0 0 20px rgba(0,0,0,0.5)}
+    .ground{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(180deg,#052e16,#041f12);border-top:1px solid rgba(255,255,255,0.05)}
+
+    .character{position:absolute;bottom:80px;width:120px;height:160px;border-radius:14px;display:flex;align-items:flex-end;justify-content:center;transition:transform 0.4s;overflow:hidden;box-shadow:0 0 15px rgba(0,0,0,0.3)}
+    .character img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+
+    #whip{position:absolute;width:140px;height:auto;opacity:0;transition:opacity 0.2s}
+
+    .controls{margin-top:16px;display:flex;gap:10px}
+    button{padding:10px 14px;border:none;border-radius:10px;background:linear-gradient(180deg,#16a34a,#065f46);color:white;cursor:pointer;font-weight:700;font-size:15px;transition:transform 0.2s}
+    button:hover{transform:scale(1.05)}
+    .small{padding:8px 12px;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>NIGGR</h1>
+        <h2>گیم اراد میت نیگا ادیشن</h2>
+      </div>
+      <div class="hud">
+        <div class="chip">امتیاز: <span id="points">0</span></div>
+        <div class="chip">پنبه: <span id="cotton">0</span></div>
+        <div class="chip">کارگر شلاق‌خورده: <span id="hits">0</span></div>
+        <div class="chip"><a href="library.html" style="color:#bbf7d0;text-decoration:none">لایبرری</a></div>
+      </div>
+    </header>
+
+    <section class="stage" id="stage">
+      <div class="ground"></div>
+      <img id="whip" src="image/61qa1z-SHML._AC_SL1000_._FMwebp_.webp" alt="whip">
+    </section>
+
+    <div class="controls">
+      <button id="kickBtn">شلاق / کیک</button>
+      <button id="resetBtn" class="small">ریست</button>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById('stage');
+    const whip = document.getElementById('whip');
+
+    let points = parseInt(localStorage.getItem('points')) || 0;
+    let cotton = parseInt(localStorage.getItem('cotton')) || 0;
+    let hits = parseInt(localStorage.getItem('hits')) || 0;
+    let libraryData = JSON.parse(localStorage.getItem('libraryData')) || {};
+
+    const pointsEl = document.getElementById('points');
+    const cottonEl = document.getElementById('cotton');
+    const hitsEl = document.getElementById('hits');
+
+    const characters = [
+      {file:'image/images (1).jpeg', chance:25, name:'کارگر ساده'},
+      {file:'image/images (2).jpeg', chance:15, name:'متوسط'},
+      {file:'image/images (3).jpeg', chance:10, name:'سطح بالا'},
+      {file:'image/images (4).jpeg', chance:5, name:'نیگای کلفت'},
+      {file:'image/images (5).jpeg', chance:2, name:'مگا نیگا'},
+      {file:'image/images (6).jpeg', chance:0.01, name:'نیگا مگا پرو مکس تربو پلاس'}
+    ];
+
+    function weightedRandom(){
+      let total = characters.reduce((sum,ch)=>sum+ch.chance,0);
+      let rand = Math.random()*total;
+      for(let ch of characters){
+        if(rand < ch.chance) return ch;
+        rand -= ch.chance;
+      }
+      return characters[0];
+    }
+
+    function updateHUD(){
+      pointsEl.textContent = points;
+      cottonEl.textContent = cotton;
+      hitsEl.textContent = hits;
+    }
+
+    document.getElementById('kickBtn').addEventListener('click',()=>{
+      points +=10;
+      cotton +=50;
+      hits +=1;
+
+      const charObj = weightedRandom();
+      if(libraryData[charObj.name]){
+        libraryData[charObj.name] +=1;
+      } else {
+        libraryData[charObj.name] =1;
+      }
+
+      const charDiv = document.createElement('div');
+      charDiv.className='character';
+      const img = document.createElement('img');
+      img.src = charObj.file;
+      charDiv.appendChild(img);
+
+      const maxLeft = stage.clientWidth - 120;
+      const left = Math.random()*maxLeft;
+      charDiv.style.left = left+'px';
+      stage.appendChild(charDiv);
+
+      whip.style.left = (left+60)+'px';
+      whip.style.bottom = '180px';
+      whip.style.opacity=1;
+      setTimeout(()=>{whip.style.opacity=0;},300);
+      setTimeout(()=>{charDiv.remove();},1000);
+
+      updateHUD();
+      localStorage.setItem('points', points);
+      localStorage.setItem('cotton', cotton);
+      localStorage.setItem('hits', hits);
+      localStorage.setItem('libraryData', JSON.stringify(libraryData));
+    });
+
+    document.getElementById('resetBtn').addEventListener('click',()=>{
+      points=0; cotton=0; hits=0; libraryData={};
+      localStorage.setItem('points', points);
+      localStorage.setItem('cotton', cotton);
+      localStorage.setItem('hits', hits);
+      localStorage.setItem('libraryData', JSON.stringify(libraryData));
+      updateHUD();
+    });
+
+    updateHUD();
+  </script>
+</body>
+</html>

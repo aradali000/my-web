@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>NIGGR - Library</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background: #001900;
+      border-bottom: 2px solid #0f0;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin: 0;
+      color: #0f0;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      font-size: 0.9em;
+      color: #0a0;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+      gap: 15px;
+    }
+
+    .worker-card {
+      border: 2px solid #0f0;
+      border-radius: 10px;
+      padding: 10px;
+      background: #001100;
+      transition: transform 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .worker-card:hover {
+      transform: scale(1.02);
+      background: #002000;
+    }
+
+    .worker-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 8px 0 4px;
+      text-align: center;
+    }
+
+    .worker-info {
+      font-size: 0.9em;
+      margin: 2px 0;
+    }
+
+    .worker-img {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #0f0;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      border: 2px solid #0f0;
+      background: transparent;
+      color: #0f0;
+      font-size: 1.1em;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NIGGR</h1>
+    <p>Not Is Good Game R</p>
+    <h2>📚 کتابخانه کارگرها</h2>
+  </header>
+
+  <div class="container" id="library"></div>
+
+  <button class="back-btn" onclick="goBack()">⬅ بازگشت</button>
+
+  <script>
+    // تعریف تصاویر چندگانه هر کارگر
+    const workerList = [
+      { name: "نیگا مگا پرو مکس تربو پلاس", rarity: "0.01%", images: ["image/images (6).jpeg","image/images (7).jpeg"] },
+      { name: "مگا نیگا", rarity: "0.1%", images: ["image/images (5).jpeg","image/images (8).jpeg"] },
+      { name: "نیگای کلفت", rarity: "1%", images: ["image/images (4).jpeg","image/images (9).jpeg"] },
+      { name: "سطح بالا", rarity: "5%", images: ["image/images (3).jpeg","image/images (10).jpeg"] },
+      { name: "متوسط", rarity: "15%", images: ["image/images (2).jpeg","image/images (11).jpeg"] },
+      { name: "کارگر ساده", rarity: "78.89%", images: ["image/images (1).jpeg","image/images (12).jpeg"] }
+    ];
+
+    const libraryDiv = document.getElementById("library");
+
+    function renderLibrary() {
+      libraryDiv.innerHTML = "";
+      const savedData = JSON.parse(localStorage.getItem('libraryData')) || {};
+
+      workerList.forEach(worker => {
+        const count = savedData[worker.name] || 0;
+
+        // انتخاب رندوم تصویر از مجموعه تصاویر آن کارگر
+        const imgSrc = count > 0 ? worker.images[Math.floor(Math.random() * worker.images.length)] : worker.images[0];
+
+        const card = document.createElement("div");
+        card.className = "worker-card";
+        card.innerHTML = `
+          <img class="worker-img" src="${imgSrc}" alt="${worker.name}">
+          <div class="worker-name">${worker.name}</div>
+          <div class="worker-info">🎲 درصد نایاب بودن: <b>${worker.rarity}</b></div>
+          <div class="worker-info">👥 تعداد گرفته شده: <b>${count}</b></div>
+        `;
+        libraryDiv.appendChild(card);
+      });
+    }
+
+    renderLibrary();
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
